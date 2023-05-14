@@ -8,6 +8,9 @@ public class Exception_Handeling{
         }catch(ArithmeticException e){
             System.out.println("Exception: "+e);
         }
+        finally{
+            System.out.println("Last Line ");
+        }
        
        System.out.println("Last line of the program"); 
     }
