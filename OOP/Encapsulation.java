@@ -3,6 +3,12 @@
 public class Encapsulation {
    private int age;
     private String Name;
+    
+    // Encapsulation(String a, int b){
+    //     Name=a;
+    //     age=b;
+
+    // }
 
     public void setName(String Name){
         this.Name=Name;
