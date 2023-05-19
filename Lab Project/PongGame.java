@@ -12,7 +12,7 @@ public class PongGame extends JFrame {
     private static final int PADDLE_SPEED = 20;
     private static final int BALL_SPEED_X = 4;
     private static final int BALL_SPEED_Y = 4;
-    private static final int BALL_SPEED_INCREMENT = 1;
+    private static final int BALL_SPEED_INCREMENT = 3;
 
     private int paddle1Y;
     private int paddle2Y;
