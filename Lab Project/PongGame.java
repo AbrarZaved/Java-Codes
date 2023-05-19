@@ -4,14 +4,15 @@ import java.awt.event.*;
 import java.util.Random;
 
 public class PongGame extends JFrame {
-    private static final int WIDTH = 1920;
-    private static final int HEIGHT = 1080;  // 16:9 aspect ratio
+    private static final int WIDTH = 1200;
+    private static final int HEIGHT = 720;  // 16:9 aspect ratio
     private static final int PADDLE_WIDTH = 10;
     private static final int PADDLE_HEIGHT = 100;
     private static final int BALL_SIZE = 20;
     private static final int PADDLE_SPEED = 20;
     private static final int BALL_SPEED_X = 4;
     private static final int BALL_SPEED_Y = 4;
+    private static final int BALL_SPEED_INCREMENT = 1;
 
     private int paddle1Y;
     private int paddle2Y;
@@ -28,7 +29,7 @@ public class PongGame extends JFrame {
     public PongGame() {
         setTitle("Pong Game");
         setSize(WIDTH, HEIGHT);
-        setResizable(true);
+        setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         paddle1Y = HEIGHT / 2 - PADDLE_HEIGHT / 2;
@@ -58,16 +59,20 @@ public class PongGame extends JFrame {
 
         JPanel scorePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         scoreLabel = new JLabel("Eirik: 0  Himiko: 0");
-        scoreLabel.setForeground(Color.WHITE);
+        scoreLabel.setForeground(Color.RED);
         scoreLabel.setFont(scoreLabel.getFont().deriveFont(24f));
         scorePanel.setBackground(new Color(173, 216, 230));  // Light blue background
         scorePanel.add(scoreLabel);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton startButton = new JButton("Start");
+        JButton restartButton = new JButton("Restart");
+        restartButton.setEnabled(false);
         startButton.setFocusable(false);
+        restartButton.setFocusable(false);
         buttonPanel.setBackground(new Color(173, 216, 230));  // Light blue background
         buttonPanel.add(startButton);
+        buttonPanel.add(restartButton);
 
         add(gamePanel, BorderLayout.CENTER);
         add(scorePanel, BorderLayout.NORTH);
@@ -89,78 +94,149 @@ public class PongGame extends JFrame {
                 if (e.getKeyCode() == KeyEvent.VK_S && paddle1Y < HEIGHT - PADDLE_HEIGHT) {
                     paddle1Y += PADDLE_SPEED;
                 }
+                if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    if (gameStarted) {
+                        gameStarted = false;
+                        startButton.setEnabled(true);
+                        restartButton.setEnabled(true);
+                    } else {
+                        gameStarted = true;
+                        startButton.setEnabled(false);
+                        restartButton.setEnabled(false);
+                        gamePanel.requestFocus();
+                        resetBall();
+                        gamePanel.repaint();
+                        Timer timer = new Timer(10, null);
+                        timer.addActionListener(new ActionListener() {
+                            public void actionPerformed(ActionEvent e) {
+                                ballX += ballSpeedX;
+                                ballY += ballSpeedY;
+
+                                if (ballY <= 0 || ballY >= HEIGHT - BALL_SIZE) {
+                                    ballSpeedY = -ballSpeedY;
+                                }
+
+                                if (ballX <= PADDLE_WIDTH && ballY + BALL_SIZE >= paddle1Y && ballY <= paddle1Y + PADDLE_HEIGHT) {
+                                    ballSpeedX = -ballSpeedX;
+                                    ballSpeedY = increaseSpeed(ballSpeedY);
+                                }
+
+                                if (ballX >= WIDTH - BALL_SIZE - PADDLE_WIDTH && ballY + BALL_SIZE >= paddle2Y && ballY <= paddle2Y + PADDLE_HEIGHT) {
+                                    ballSpeedX = -ballSpeedX;
+                                    ballSpeedY = increaseSpeed(ballSpeedY);
+                                }
+
+                                if (ballX <= 0) {
+                                    player2Score++;
+                                    updateScoreLabel();
+                                    resetBall();
+                                }
+
+                                if (ballX >= WIDTH - BALL_SIZE) {
+                                    player1Score++;
+                                    updateScoreLabel();
+                                    resetBall();
+                                }
+
+                                if (player1Score == 5 || player2Score == 5) {
+                                    timer.stop();
+                                    gameStarted = false;
+                                    startButton.setEnabled(true);
+                                    restartButton.setEnabled(true);
+                                }
+
+                                gamePanel.repaint();
+                            }
+                        });
+                        timer.start();
+                    }
+                }
             }
         });
 
         startButton.addActionListener(e -> {
-            if (!gameStarted) {
-                gameStarted = true;
-                startButton.setEnabled(false);
-                gamePanel.requestFocus();
-                resetBall();
-                gamePanel.repaint();
-                Timer timer = new Timer(10, null);
-                timer.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        ballX += ballSpeedX;
-                        ballY += ballSpeedY;
+            gameStarted = true;
+            startButton.setEnabled(false);
+            restartButton.setEnabled(false);
+            gamePanel.requestFocus();
+            resetBall();
+            gamePanel.repaint();
+            Timer timer = new Timer(10, null);
+            timer.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    ballX += ballSpeedX;
+                    ballY += ballSpeedY;
 
-                        if (ballY <= 0 || ballY >= HEIGHT - BALL_SIZE) {
-                            ballSpeedY = -ballSpeedY;
-                        }
-
-                        if (ballX <= PADDLE_WIDTH && ballY + BALL_SIZE >= paddle1Y && ballY <= paddle1Y + PADDLE_HEIGHT) {
-                            ballSpeedX = -ballSpeedX;
-                        }
-
-                        if (ballX >= WIDTH - BALL_SIZE - PADDLE_WIDTH && ballY + BALL_SIZE >= paddle2Y && ballY <= paddle2Y + PADDLE_HEIGHT) {
-                            ballSpeedX = -ballSpeedX;
-                        }
-
-                        if (ballX <= 0) {
-                            player2Score++;
-                            updateScoreLabel();
-                            resetBall();
-                        }
-
-                        if (ballX >= WIDTH - BALL_SIZE) {
-                            player1Score++;
-                            updateScoreLabel();
-                            resetBall();
-                        }
-
-                        if (player1Score == 5 || player2Score == 5) {
-                            timer.stop();
-                            gameStarted = false;
-                            startButton.setEnabled(true);
-                        }
-
-                        gamePanel.repaint();
+                    if (ballY <= 0 || ballY >= 600 - BALL_SIZE) {
+                        ballSpeedY = -ballSpeedY;
                     }
-                });
-                timer.start();
-            }
+
+                    if (ballX <= PADDLE_WIDTH && ballY + BALL_SIZE >= paddle1Y && ballY <= paddle1Y + PADDLE_HEIGHT) {
+                        ballSpeedX = -ballSpeedX;
+                        ballSpeedY = increaseSpeed(ballSpeedY);
+                    }
+
+                    if (ballX >= WIDTH - BALL_SIZE - PADDLE_WIDTH && ballY + BALL_SIZE >= paddle2Y && ballY <= paddle2Y + PADDLE_HEIGHT) {
+                        ballSpeedX = -ballSpeedX;
+                        ballSpeedY = increaseSpeed(ballSpeedY);
+                    }
+
+                    if (ballX <= 0) {
+                        player2Score++;
+                        updateScoreLabel();
+                        resetBall();
+                    }
+
+                    if (ballX >= WIDTH - BALL_SIZE) {
+                        player1Score++;
+                        updateScoreLabel();
+                        resetBall();
+                    }
+
+                    if (player1Score == 5 || player2Score == 5) {
+                        timer.stop();
+                        gameStarted = false;
+                        startButton.setEnabled(true);
+                        restartButton.setEnabled(true);
+                    }
+
+                    gamePanel.repaint();
+                }
+            });
+            timer.start();
+        });
+
+        restartButton.addActionListener(e -> {
+            player1Score = 0;
+            player2Score = 0;
+            updateScoreLabel();
+            resetBall();
+            gamePanel.repaint();
         });
 
         setVisible(true);
     }
 
+    private int increaseSpeed(int speed) {
+        if (speed > 0) {
+            return speed + BALL_SPEED_INCREMENT;
+        } else {
+            return speed - BALL_SPEED_INCREMENT;
+        }
+    }
+
     private void resetBall() {
         ballX = WIDTH / 2 - BALL_SIZE / 2;
         ballY = HEIGHT / 2 - BALL_SIZE / 2;
-        Random random = new Random();
-        ballSpeedX = BALL_SPEED_X * (random.nextBoolean() ? 1 : -1);
-        ballSpeedY = BALL_SPEED_Y * (random.nextBoolean() ? 1 : -1);
-        paddle1Y = random.nextInt(HEIGHT - PADDLE_HEIGHT);
-        paddle2Y = random.nextInt(HEIGHT - PADDLE_HEIGHT);
+        ballSpeedX = BALL_SPEED_X;
+        ballSpeedY = BALL_SPEED_Y;
     }
 
     private void updateScoreLabel() {
-        scoreLabel.setText("<html><span style='font-size:24px'>Eirik: " + player1Score +
-                "  <span style='color:blue'>Himiko: " + player2Score + "</span></span></html>");
+        scoreLabel.setText("<html><div style='text-align: center;'>Himiko: " + player1Score + "  Eirik: " + player2Score + "</div></html>");
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new PongGame());
+        SwingUtilities.invokeLater(PongGame::new);
     }
 }
