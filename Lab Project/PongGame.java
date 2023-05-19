@@ -12,7 +12,7 @@ public class PongGame extends JFrame {
     private static final int PADDLE_SPEED = 20;
     private static final int BALL_SPEED_X = 4;
     private static final int BALL_SPEED_Y = 4;
-    private static final int BALL_SPEED_INCREMENT = 3;
+    private static final int BALL_SPEED_INCREMENT = 1;
 
     private int paddle1Y;
     private int paddle2Y;
@@ -112,7 +112,7 @@ public class PongGame extends JFrame {
                                 ballX += ballSpeedX;
                                 ballY += ballSpeedY;
 
-                                if (ballY <= 0 || ballY >= HEIGHT - BALL_SIZE) {
+                                if (ballY <= 0 || ballY >= 600 - BALL_SIZE) {
                                     ballSpeedY = -ballSpeedY;
                                 }
 
