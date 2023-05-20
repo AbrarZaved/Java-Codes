@@ -9,7 +9,7 @@ public class Problem_1{
         System.out.print("Enter the Width: ");
         b=sc.nextDouble();
         area=a*b;
-        perimeter=.5*(a+b);
+        perimeter=2*(a+b);
         System.out.println("Area: "+area);
         System.out.println("Perimeter: "+perimeter);
         
