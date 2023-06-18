@@ -1,0 +1,4 @@
+interface Bank{
+    void account();
+    
+}
